@@ -137,11 +137,11 @@ public class RelatorioGeralService {
 		});
 		mapPessoasAtendimento.put("Pessoas Encaminhadas", lstPessoasEncaminhadas.size());
 		
-		relatorio.addAtividadeHospedagem("PESSOAS E ATENDIMENTOS", 				this.transforToList(mapPessoasAtendimento, true));
+		relatorio.addAtividadeHospedagem("PESSOAS E ATENDIMENTOS", 			this.transforToList(mapPessoasAtendimento, true));
 		relatorio.addAtividadeHospedagem("ATENDIMENTOS", 						this.transforToList(mapTipoUtilizacaoAtendimento, true));
 		relatorio.addAtividadeHospedagem("TIPOS DE ATENDIMENTOS",				this.transforToList(mapTipoHospedeAtendimento, true));
-		relatorio.addAtividadeHospedagem("PESSOAS ATENDIDAS POR FAIXA ETÁRIA",	this.transforToList(mapPessoaFaixaEtaria, true));
-		relatorio.addAtividadeHospedagem("ENCAMINHAMENTOS",						this.transforToList(mapEncaminhamentos, true));
+		relatorio.addAtividadeHospedagem("PESSOAS ATENDIDAS POR FAIXA ETÁRIA",this.transforToList(mapPessoaFaixaEtaria, true));
+		relatorio.addAtividadeHospedagem("ENCAMINHAMENTOS",					this.transforToList(mapEncaminhamentos, true));
 		relatorio.addAtividadeHospedagem("CIDADE DE ORIGEM",					this.transforToList(mapCidadeOrigem, true));
 		
 		relatorio.setResumoHospedagens(this.listResumoHospedagem);
