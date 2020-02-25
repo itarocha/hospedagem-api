@@ -6,6 +6,7 @@ import br.com.itarocha.hospedagem.model.DestinacaoHospedagem;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 import java.util.List;
 
 @ApplicationScoped
@@ -26,4 +27,5 @@ public class DestinacaoHospedagemRepository extends AbstractRepository<Destinaca
     public List<SelectValueVO> getListSelect(){
         return super.getListSelect("id", "descricao", "descricao");
     }
+
 }

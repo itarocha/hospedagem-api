@@ -1,49 +1,70 @@
 package br.com.itarocha.hospedagem.controller;
 
-//import br.com.itarocha.betesda.utils.Validadores;
+import br.com.itarocha.hospedagem.dto.ResponseReturn;
+import br.com.itarocha.hospedagem.exception.ValidationException;
+import br.com.itarocha.hospedagem.model.Encaminhador;
+import br.com.itarocha.hospedagem.model.Entidade;
+import br.com.itarocha.hospedagem.service.EntidadeService;
+import br.com.itarocha.hospedagem.validation.ItaValidator;
+import br.com.itarocha.hospedagem.validators.Validadores;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
-/*
-@RestController
-@RequestMapping("/api/app/entidades")
-*/
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import javax.validation.Validator;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.util.List;
+
+import static javax.ws.rs.core.Response.Status.*;
+
+@Transactional
+@Path("/api/app/entidades")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
+@Tag(name = "cadastros")
 public class EntidadesController {
 
-	/*
-	@Autowired
-	private EntidadeService service;
-	
-	@RequestMapping(value="{id}")
-	@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
-	public ResponseEntity<?> getById(@PathVariable("id") Long id) {
-		try {
-			Optional<Entidade> model = service.find(id);
-			if (model.isPresent()) {
-				return new ResponseEntity<Entidade>(model.get(), HttpStatus.OK);
-			} else {
-				return new ResponseEntity<String>("não encontrado", HttpStatus.NOT_FOUND);
-			}
-		} finally {
-			//em.close();
-		}
+	@Inject EntidadeService service;
+
+    @Inject Validator validator;
+
+	@Path("{id}")
+	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	public Response getById(@PathParam("id") Long id) {
+        try {
+            return service.find(id)
+                    .map(model -> Response.status(OK)
+                            .entity(model)
+                            .build())
+                    .orElse(Response.status(NOT_FOUND)
+                            .entity(new ResponseReturn("id não localizado"))
+                            .build());
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new ResponseReturn(e.getMessage())).build();
+        }
 	}
 
-	@RequestMapping
-	@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
-	public ResponseEntity<?> listar() {
+	@GET
+	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	public Response listar() {
 		List<Entidade> lista = service.findAll();
-		return new ResponseEntity<List<Entidade>>(lista, HttpStatus.OK);
-	}
-	
-	@RequestMapping(value = "/consultar/{texto}")
-	@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
-	public ResponseEntity<?> consultar(@PathVariable("texto") String texto) {
-		List<Entidade> lista = service.consultar(texto);
-		return new ResponseEntity<List<Entidade>>(lista, HttpStatus.OK);
+        return Response.status(OK).entity(lista).build();
 	}
 
-	@RequestMapping(method = RequestMethod.POST)
-	@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
-	public ResponseEntity<?> gravar(@RequestBody Entidade model) {
+	@GET
+	@Path("/consultar/{texto}")
+	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	public Response consultar(@PathParam("texto") String texto) {
+		List<Entidade> lista = service.consultar(texto);
+        return Response.status(OK).entity(lista).build();
+	}
+
+	@POST
+	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	public Response gravar(@RequestBody Entidade model) {
 		
 		if (model.getCnpj() != null) {
 			model.setCnpj(model.getCnpj().replaceAll("\\.", "").replaceAll("\\-", "").replaceAll("\\/", ""));
@@ -52,8 +73,7 @@ public class EntidadesController {
 			model.getEndereco().setCep((model.getEndereco().getCep().replaceAll("\\-", "")));
 		}
 		
-		ItaValidator<Entidade> v = new ItaValidator<Entidade>(model);
-		v.validate();
+		ItaValidator<Entidade> v = new ItaValidator<Entidade>(model).validate(validator);
 		
 		if (model.getCnpj() != null && model.getCnpj() != "") {
 			if (!Validadores.isValidCNPJ(model.getCnpj())) {
@@ -62,30 +82,31 @@ public class EntidadesController {
 		}
 		
 		if (!v.hasErrors() ) {
-			return new ResponseEntity<>(v.getErrors(), HttpStatus.BAD_REQUEST);
+			return Response.status(BAD_REQUEST).entity(v.getErrors()).build();
 		}
 		
 		try {
 			Entidade saved = null;
 			saved = service.create(model);
-		    return new ResponseEntity<Entidade>(saved, HttpStatus.OK);
+		    return Response.status(OK).entity(saved).build();
 		} catch (ValidationException e) {
-			ResponseEntity<?> re = new ResponseEntity<>(e.getRe(), HttpStatus.BAD_REQUEST); 
-			return re;
+		    return Response.status(BAD_REQUEST).entity(e.getRe()).build();
 		} catch (Exception e) {
-			return new ResponseEntity<>(e, HttpStatus.INTERNAL_SERVER_ERROR);
+			return Response.status(INTERNAL_SERVER_ERROR).entity(new ResponseReturn(e.getMessage())).build();
 		}
 	}
-	
-	@RequestMapping(value = "{id}", method=RequestMethod.DELETE)
-	@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
-	public ResponseEntity<?> excluir(@PathVariable("id") Long id) {
-		try {
-			service.remove(id);
-			return new ResponseEntity<String>("sucesso", HttpStatus.OK);
-		} catch (Exception e) {
-			return new ResponseEntity<>(e, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+
+	@DELETE
+	@Path("{id}")
+	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	public Response excluir(@PathParam("id") Long id) {
+        try {
+            if (!service.remove(id)){
+                return Response.status(Response.Status.NOT_FOUND).entity(new ResponseReturn("id não localizado")).build();
+            }
+            return Response.status(OK).entity(new ResponseReturn("sucesso")).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new ResponseReturn(e.getMessage())).build();
+        }
 	 }
-	 */
 }

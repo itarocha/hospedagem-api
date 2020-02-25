@@ -3,6 +3,8 @@ package br.com.itarocha;
 import br.com.itarocha.hospedagem.dto.SelectValueVO;
 import br.com.itarocha.hospedagem.model.DestinacaoHospedagem;
 import br.com.itarocha.hospedagem.repository.DestinacaoHospedagemRepository;
+import br.com.itarocha.hospedagem.repository.HospedagemRepository;
+import br.com.itarocha.hospedagem.repository.HospedeLeitoRepository;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Order;
@@ -39,6 +41,7 @@ public class DestinacaoHospedagemRepositoryTest {
     @Order(1)
     @Timeout(value = 1, unit = MINUTES)
     public void testInsert(){
+
         List<String> toInsert = Arrays.asList("NOVA YORK", "ALBUQUERQUE", "CAXIAS", "UBERLÂNDIA", "UBERABA");
         List<SelectValueVO> lstSelect = new ArrayList<>();
         for (String s : toInsert){

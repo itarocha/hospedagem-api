@@ -45,19 +45,12 @@ public class EntidadeService {
 		return model;
 	}
 
-	public void remove(Long id) {
-		Optional<Entidade> model = find(id);
-		if (model.isPresent()) {
-			repositorio.delete(model.get());
-		}
+	public boolean remove(Long id) {
+		return repositorio.remove(id);
 	}
 
 	public Entidade update(Entidade model) {
-		Optional<Entidade> obj = find(model.getId());
-		if (obj.isPresent()) {
-			return repositorio.save(model);
-		}
-		return model;
+		return repositorio.save(model);
 	}
 
 	public Optional<Entidade> find(Long id) {
