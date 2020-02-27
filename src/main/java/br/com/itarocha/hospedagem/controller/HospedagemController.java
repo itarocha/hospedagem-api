@@ -1,42 +1,53 @@
 package br.com.itarocha.hospedagem.controller;
 
-import java.time.LocalDate;
-/*
-import br.com.itarocha.betesda.model.HospedagemFullVO;
-import br.com.itarocha.betesda.model.HospedagemVO;
-import br.com.itarocha.betesda.model.HospedeVO;
-import br.com.itarocha.betesda.model.hospedagem.MapaCidades;
-import br.com.itarocha.betesda.model.hospedagem.MapaHospedes;
-import br.com.itarocha.betesda.model.hospedagem.MapaLinhas;
-import br.com.itarocha.betesda.model.hospedagem.MapaQuadro;
-import br.com.itarocha.betesda.model.hospedagem.MapaRetorno;
-import br.com.itarocha.betesda.model.hospedagem.OcupacaoLeito;
-import br.com.itarocha.betesda.report.RelatorioAtendimentos;
-import br.com.itarocha.betesda.service.HospedagemService;
-import br.com.itarocha.betesda.service.PlanilhaGeralService;
-import br.com.itarocha.betesda.service.RelatorioGeralService;
-import br.com.itarocha.betesda.util.validation.ItaValidator;
-import br.com.itarocha.betesda.util.validation.ResultError;
-*/
+import br.com.itarocha.hospedagem.dto.HospedagemFullVO;
+import br.com.itarocha.hospedagem.dto.HospedagemVO;
+import br.com.itarocha.hospedagem.dto.HospedeVO;
+import br.com.itarocha.hospedagem.dto.ResponseReturn;
+import br.com.itarocha.hospedagem.dto.hospedagem.*;
+import br.com.itarocha.hospedagem.exception.ValidationException;
+import br.com.itarocha.hospedagem.report.RelatorioAtendimentos;
+import br.com.itarocha.hospedagem.service.HospedagemService;
+import br.com.itarocha.hospedagem.service.PlanilhaGeralService;
+import br.com.itarocha.hospedagem.service.RelatorioGeralService;
+import br.com.itarocha.hospedagem.validation.ItaValidator;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.springframework.core.io.InputStreamResource;
 
-/*
-@RestController
-@RequestMapping("/api/app/hospedagem")
-*/
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import javax.validation.Validator;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.List;
+
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.OK;
+
+@Transactional
+@Path("/api/app/hospedagem")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
+@Tag(name = "movimentação")
 public class HospedagemController {
 
-	/*
-	@Autowired
-	private HospedagemService service;
+	@Inject
+	HospedagemService service;
 	
-	@Autowired
-	private RelatorioGeralService relatorioService;
-	
-	@RequestMapping(method = RequestMethod.POST)
-	@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
-	public ResponseEntity<?> gravar(@RequestBody HospedagemVO model) {
-		ItaValidator<HospedagemVO> v = new ItaValidator<HospedagemVO>(model);
-		v.validate();
+	@Inject
+	RelatorioGeralService relatorioService;
+
+	@Inject	Validator validator;
+
+	@POST
+	////@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	public Response gravar(@RequestBody HospedagemVO model) {
+		ItaValidator<HospedagemVO> v = new ItaValidator<HospedagemVO>(model).validate(validator);
 		
 		if (model.getHospedes().size() == 0) {
 			v.addError("id", "É necessário pelo menos um hóspede");
@@ -63,65 +74,70 @@ public class HospedagemController {
 		}
 		
 		if (!v.hasErrors() ) {
-			return new ResponseEntity<>(v.getErrors(), HttpStatus.BAD_REQUEST);
+			return Response.status(BAD_REQUEST).entity(v.getErrors()).build();
 		}
 		
 		try {
 			service.create(model);
-		    return new ResponseEntity<HospedagemVO>(model, HttpStatus.OK);
+		    return Response.status(OK).entity(model).build();
 		} catch (ValidationException e) {
-			return new ResponseEntity<ResultError>(e.getRe(), HttpStatus.BAD_REQUEST);
+			return Response.status(BAD_REQUEST).entity(e.getRe()).build();
 		} catch (Exception e) {
-			return new ResponseEntity<>(e, HttpStatus.INTERNAL_SERVER_ERROR);
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new ResponseReturn(e.getMessage())).build();
 		}
 	}
-	
-	@RequestMapping(value="/mapa", method = RequestMethod.POST)
-	@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
-	public MapaRetorno mapa(@RequestBody MapaHospedagemRequest model)
+
+	@POST
+	@Path("/mapa")
+	////@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	public Response mapa(@RequestBody MapaHospedagemRequest model)
 	{
 		MapaRetorno retorno = service.buildMapaRetorno(model.data);
-		return retorno;
+		return Response.status(OK).entity(retorno).build();
 	}
 
-	@RequestMapping(value="/mapa/linhas", method = RequestMethod.POST)
-	@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
-	public MapaLinhas mapaLinhas(@RequestBody MapaHospedagemRequest model)
+	@POST
+	@Path("/mapa/linhas")
+	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	public Response mapaLinhas(@RequestBody MapaHospedagemRequest model)
 	{
 		MapaLinhas retorno = service.buildMapaLinhas(model.data);
-		return retorno;
+		return Response.status(OK).entity(retorno).build();
 	}
 
-	@RequestMapping(value="/mapa/hospedes", method = RequestMethod.POST)
-	@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
-	public MapaHospedes mapaHospedes(@RequestBody MapaHospedagemRequest model)
+	@POST
+	@Path("/mapa/hospedes")
+	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	public Response mapaHospedes(@RequestBody MapaHospedagemRequest model)
 	{
 		MapaHospedes retorno = service.buildMapaHospedes(model.data);
-		return retorno;
+		return Response.status(OK).entity(retorno).build();
 	}
 
-	@RequestMapping(value="/mapa/cidades", method = RequestMethod.POST)
-	@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
-	public MapaCidades mapaCidades(@RequestBody MapaHospedagemRequest model)
+	@POST
+	@Path("/mapa/cidades")
+	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	public Response mapaCidades(@RequestBody MapaHospedagemRequest model)
 	{
 		MapaCidades retorno = service.buildMapaCidades(model.data);
-		return retorno;
+		return Response.status(OK).entity(retorno).build();
 	}
 
-	@RequestMapping(value="/mapa/quadro", method = RequestMethod.POST)
-	@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
-	public MapaQuadro mapaQuadro(@RequestBody MapaHospedagemRequest model)
+	@POST
+	@Path("/mapa/quadro")
+	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	public Response mapaQuadro(@RequestBody MapaHospedagemRequest model)
 	{
 		MapaQuadro retorno = service.buildMapaQuadro(model.data);
-		return retorno;
+		return Response.status(OK).entity(retorno).build();
 	}
 
-	@RequestMapping(value="/planilha_geral", method = RequestMethod.POST)
-	@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
-	public ResponseEntity<?> planilhaGeral(@RequestBody PeriodoRequest model)
+	@POST
+	@Path("/planilha_geral")
+	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	public Response planilhaGeral(@RequestBody PeriodoRequest model)
 	{
-		ItaValidator<PeriodoRequest> v = new ItaValidator<PeriodoRequest>(model);
-		v.validate();
+		ItaValidator<PeriodoRequest> v = new ItaValidator<PeriodoRequest>(model).validate(validator);
 		
 		if (model.dataIni == null) {
 			v.addError("dataIni", "Data Inicial deve ser preenchida");
@@ -131,28 +147,26 @@ public class HospedagemController {
 		}
 		
 		if (!v.hasErrors() ) {
-			return new ResponseEntity<>(v.getErrors(), HttpStatus.BAD_REQUEST);
+			return Response.status(BAD_REQUEST).entity(v.getErrors()).build();
 		}
 
-		//relatorioService.teste(model.dataIni,  model.dataFim);
-		
 		try {
-			//RelatorioAtendimentos retorno = relatorioService.buildPlanilhaGeral(model.dataIni, model.dataFim);
 			RelatorioAtendimentos retorno = relatorioService.buildNovaPlanilha(model.dataIni, model.dataFim);
-			return new ResponseEntity<RelatorioAtendimentos>(retorno, HttpStatus.OK);
+			return Response.status(OK).entity(retorno).build();
 		} catch(Exception e) {
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new ResponseReturn(e.getMessage())).build();
 		}
 
 	}
-	
+
 	//https://grokonez.com/spring-framework/spring-boot/excel-file-download-from-springboot-restapi-apache-poi-mysql
 	//@GetMapping(value = "/planilha_geral_arquivo")
-	@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
-	@RequestMapping(path = "/planilha_geral_arquivo", method = RequestMethod.POST)
-	public ResponseEntity<?>planilhaGeralExcel(@RequestBody PeriodoRequest model) throws IOException {
-		ItaValidator<PeriodoRequest> v = new ItaValidator<PeriodoRequest>(model);
-		v.validate();
+	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@POST
+	@Path("/planilha_geral_arquivo")
+	@Produces(MediaType.APPLICATION_OCTET_STREAM)
+	public Response planilhaGeralExcel(@RequestBody PeriodoRequest model) throws IOException {
+		ItaValidator<PeriodoRequest> v = new ItaValidator<PeriodoRequest>(model).validate(validator);
 		
 		if (model.dataIni == null) {
 			v.addError("dataIni", "Data Inicial deve ser preenchida");
@@ -162,155 +176,161 @@ public class HospedagemController {
 		}
 		
 		if (!v.hasErrors() ) {
-			return new ResponseEntity<>(v.getErrors(), HttpStatus.BAD_REQUEST);
+			return Response.status(BAD_REQUEST).entity(v.getErrors()).build();
 		}
 		
 		RelatorioAtendimentos retorno = null;
 		try {
-			//System.out.println(String.format("Iniciando geração do relatório - %s", LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)));
-			//retorno = relatorioService.buildPlanilhaGeral(model.dataIni, model.dataFim);
 			retorno = relatorioService.buildNovaPlanilha(model.dataIni, model.dataFim);
-			//System.out.println(String.format("Finalizando geração do relatório - %s", LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)));
-			// Gerar planilha
 		} catch(Exception e) {
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new ResponseReturn(e.getMessage())).build();
 		}
 		
-		//System.out.println(String.format("Gerando planilha - %s", LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)));
 		ByteArrayInputStream in = PlanilhaGeralService.toExcel(retorno);
-		//System.out.println(String.format("Planilha gerada - %s", LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)));
-		
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("Content-Disposition", "attachment; filename=planilha.xlsx");
-		headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
-	    headers.add("Pragma", "no-cache");
-	    headers.add("Expires", "0");
-		
-		return ResponseEntity
+
+		return Response.status(OK)
+				.type(MediaType.APPLICATION_OCTET_STREAM)
+				.entity(new InputStreamResource(in))
+				.header("Content-Disposition", "attachment; filename=planilha.xlsx")
+				.header("Cache-Control", "no-cache, no-store, must-revalidate")
+				.header("Pragma", "no-cache")
+				.header("Expires", "0")
+				.build();
+				/*
 				.ok()
 				.contentType(MediaType.APPLICATION_OCTET_STREAM)
 				//.contentLength(file.length())
 				.headers(headers)
 				.body(new InputStreamResource(in));
+
+				 */
 	}
-	
-	@RequestMapping(value="/leitos_ocupados", method = RequestMethod.POST)
-	@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
-	public ResponseEntity<?> leitosOcupados(@RequestBody HospedagemPeriodoRequest model)
+
+	@POST
+	@Path("/leitos_ocupados")
+	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	public Response leitosOcupados(@RequestBody HospedagemPeriodoRequest model)
 	{
+
 		try {
 			List<OcupacaoLeito> retorno = service.getLeitosOcupadosNoPeriodo(model.hospedagemId, model.dataIni, model.dataFim);
-			
-			//List<Long> retorno = service.getLeitosOcupadosNoPeriodo(model.hospedagemId, model.dataIni, model.dataFim);
-			return new ResponseEntity<List<OcupacaoLeito>>(retorno, HttpStatus.OK);
+			return Response.status(OK).entity(retorno).build();
 		} catch(Exception e) {
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new ResponseReturn(e.getMessage())).build();
 		}
 	}
 
-	@RequestMapping(value="/mapa/alterar_hospede", method = RequestMethod.POST)
-	@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
-	public ResponseEntity<?> alterarHospede(@RequestBody AlteracaoHospedeRequest model)
+	@POST
+	@Path("/mapa/alterar_hospede")
+	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	public Response alterarHospede(@RequestBody AlteracaoHospedeRequest model)
 	{
 		try {
 			service.alterarTipoHospede(model.hospedeId, model.tipoHospedeId);
-			return new ResponseEntity<String>("ok", HttpStatus.OK);
+			return Response.status(OK).entity(new ResponseReturn("ok")).build();
 		} catch(ValidationException e) {
-			return new ResponseEntity<ResultError>(e.getRe(), HttpStatus.BAD_REQUEST);
+			return Response.status(BAD_REQUEST).entity(e.getRe()).build();
 		}
 	}
-	
-	@RequestMapping(value="/mapa/encerramento", method = RequestMethod.POST)
-	@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
-	public ResponseEntity<?> encerramento(@RequestBody OperacoesRequest model)
+
+	@POST
+	@Path("/mapa/encerramento")
+	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	public Response encerramento(@RequestBody OperacoesRequest model)
 	{
 		try {
 			service.encerrarHospedagem(model.hospedagemId, model.data);
-			return new ResponseEntity<String>("ok", HttpStatus.OK);
+			return Response.status(OK).entity(new ResponseReturn("ok")).build();
 		} catch(ValidationException e) {
-			return new ResponseEntity<ResultError>(e.getRe(), HttpStatus.BAD_REQUEST);
+			return Response.status(BAD_REQUEST).entity(e.getRe()).build();
 		}
 	}
 	
-	@RequestMapping(value="/mapa/renovacao", method = RequestMethod.POST)
-	@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
-	public ResponseEntity<?> renovacao(@RequestBody OperacoesRequest model)
+	@POST
+	@Path("/mapa/renovacao")
+	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	public Response renovacao(@RequestBody OperacoesRequest model)
 	{
 		try {
 			service.renovarHospedagem(model.hospedagemId, model.data);
-			return new ResponseEntity<String>("ok", HttpStatus.OK);
+			return Response.status(OK).entity(new ResponseReturn("ok")).build();
 		} catch(ValidationException e) {
-			return new ResponseEntity<ResultError>(e.getRe(), HttpStatus.BAD_REQUEST);
+			return Response.status(BAD_REQUEST).entity(e.getRe()).build();
 		}
 	}
-	
-	@RequestMapping(value="/remover_hospede", method = RequestMethod.POST)
-	@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
-	public ResponseEntity<?> removerHospede(@RequestBody RemoverHospedeRequest model)
+
+	@POST
+	@Path("/remover_hospede")
+	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	public Response removerHospede(@RequestBody RemoverHospedeRequest model)
 	{
 		try {
 			service.removerHospede(model.hospedagemId, model.hospedeId);
-			return new ResponseEntity<String>("ok", HttpStatus.OK); 
+			return Response.status(OK).entity(new ResponseReturn("ok")).build();
 		} catch(ValidationException e) {
-			return new ResponseEntity<ResultError>(e.getRe(), HttpStatus.BAD_REQUEST);
+			return Response.status(BAD_REQUEST).entity(e.getRe()).build();
 		}
 	}
-	
-	@RequestMapping(value="/mapa/baixar", method = RequestMethod.POST)
-	@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
-	public ResponseEntity<?> baixar(@RequestBody BaixaRequest model)
+
+	@POST
+	@Path("/mapa/baixar")
+	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	public Response baixar(@RequestBody BaixaRequest model)
 	{
 		try {
 			service.baixarHospede(model.hospedeId, model.data);
-			return new ResponseEntity<String>("ok", HttpStatus.OK); 
+			return Response.status(OK).entity(new ResponseReturn("ok")).build();
 		} catch(ValidationException e) {
-			return new ResponseEntity<ResultError>(e.getRe(), HttpStatus.BAD_REQUEST);
+			return Response.status(BAD_REQUEST).entity(e.getRe()).build();
 		}
 	}
-	
-	@RequestMapping(value="/mapa/transferir", method = RequestMethod.POST)
-	@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
-	public ResponseEntity<?> transferir(@RequestBody TransferenciaRequest model)
+
+	@POST
+	@Path("/mapa/transferir")
+	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	public Response transferir(@RequestBody TransferenciaRequest model)
 	{
 		try {
 			service.transferirHospede(model.hospedeId, model.leitoId, model.data);
-			return new ResponseEntity<String>("ok", HttpStatus.OK); 
+			return Response.status(OK).entity(new ResponseReturn("ok")).build();
 		} catch(ValidationException e) {
-			return new ResponseEntity<ResultError>(e.getRe(), HttpStatus.BAD_REQUEST);
+			return Response.status(BAD_REQUEST).entity(e.getRe()).build();
 		}
 	}
-	
-	@RequestMapping(value="/mapa/adicionar", method = RequestMethod.POST)
-	@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
-	public ResponseEntity<?> adicionarHospede(@RequestBody AdicionarHospedeRequest model)
+
+	@POST
+	@Path("/mapa/adicionar")
+	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	public Response adicionarHospede(@RequestBody AdicionarHospedeRequest model)
 	{
 		try {
 			service.adicionarHospede(model.hospedagemId, model.pessoaId, model.tipoHospedeId, model.leitoId, model.data);
-			return new ResponseEntity<String>("ok", HttpStatus.OK); 
+			return Response.status(OK).entity(new ResponseReturn("ok")).build();
 		} catch(ValidationException e) {
-			return new ResponseEntity<ResultError>(e.getRe(), HttpStatus.BAD_REQUEST);
+			return Response.status(BAD_REQUEST).entity(e.getRe()).build();
 		}
-	}
-	
-	@RequestMapping(value="/mapa/hospedagem_info", method = RequestMethod.POST)
-	@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
-	public HospedagemFullVO getHospedagemInfo(@RequestBody HospdeagemInfoRequest model)
-	{
-		HospedagemFullVO h = service.getHospedagemPorHospedeLeitoId(model.hospedagemId);
-		return h;
 	}
 
-	@RequestMapping(value="{id}", method = RequestMethod.DELETE)
-	@PreAuthorize("hasAnyRole('ADMIN','ROOT')")
-	public ResponseEntity<?> excluir(@PathVariable("id") Long id) {
+	@POST
+	@Path("/mapa/hospedagem_info")
+	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	public Response getHospedagemInfo(@RequestBody HospdeagemInfoRequest model)
+	{
+		HospedagemFullVO h = service.getHospedagemPorHospedeLeitoId(model.hospedagemId);
+		return Response.status(OK).entity(h).build();
+	}
+
+	@DELETE
+	@Path("{id}")
+	//@PreAuthorize("hasAnyRole('ADMIN','ROOT')")
+	public Response excluir(@PathParam("id") Long id) {
 		try {
 			service.excluirHospedagem(id);
-		    return new ResponseEntity<String>("sucesso", HttpStatus.OK);
+			return Response.status(OK).entity(new ResponseReturn("sucesso")).build();
 		} catch (Exception e) {
-			return new ResponseEntity<>(e, HttpStatus.INTERNAL_SERVER_ERROR);
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new ResponseReturn(e.getMessage())).build();
 		}
 	 }
-	*/
 
 	private static class MapaHospedagemRequest{
 		public LocalDate data;

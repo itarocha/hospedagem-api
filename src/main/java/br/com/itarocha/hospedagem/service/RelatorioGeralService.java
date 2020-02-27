@@ -14,8 +14,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-
-import org.springframework.transaction.annotation.Transactional;
+import javax.transaction.Transactional;
 
 import br.com.itarocha.hospedagem.report.ChaveValor;
 import br.com.itarocha.hospedagem.report.PessoaAtendida;
