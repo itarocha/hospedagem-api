@@ -11,9 +11,10 @@ import br.com.itarocha.hospedagem.service.HospedagemService;
 import br.com.itarocha.hospedagem.service.PlanilhaGeralService;
 import br.com.itarocha.hospedagem.service.RelatorioGeralService;
 import br.com.itarocha.hospedagem.validation.ItaValidator;
+import org.apache.commons.io.IOUtils;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
-import org.springframework.core.io.InputStreamResource;
+//import org.springframework.core.io.InputStreamResource;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -21,8 +22,8 @@ import javax.validation.Validator;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.*;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -186,11 +187,34 @@ public class HospedagemController {
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new ResponseReturn(e.getMessage())).build();
 		}
 		
-		ByteArrayInputStream in = PlanilhaGeralService.toExcel(retorno);
+		ByteArrayInputStream is = PlanilhaGeralService.toExcel(retorno);
+
+		/*
+		StreamingOutput stream = new StreamingOutput() {
+			@Override
+			public void write(OutputStream os) throws IOException, WebApplicationException {
+				IOUtils.copy(is, os);
+				IOUtils.closeQuietly(is);
+				IOUtils.closeQuietly(os);
+			}
+		};
+		*/
+
+		StreamingOutput stream = new StreamingOutput() {
+			@Override
+			public void write(OutputStream out) throws IOException, WebApplicationException {
+				byte[] buffer = new byte[8192];
+				int bytesRead;
+				while ((bytesRead = is.read(buffer)) != -1) {
+					out.write(buffer, 0, bytesRead);
+				}
+			}
+		};
+
 
 		return Response.status(OK)
 				.type(MediaType.APPLICATION_OCTET_STREAM)
-				.entity(new InputStreamResource(in))
+				.entity(stream)
 				.header("Content-Disposition", "attachment; filename=planilha.xlsx")
 				.header("Cache-Control", "no-cache, no-store, must-revalidate")
 				.header("Pragma", "no-cache")
