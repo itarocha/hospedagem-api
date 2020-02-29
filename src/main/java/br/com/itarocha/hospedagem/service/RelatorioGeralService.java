@@ -24,7 +24,6 @@ import br.com.itarocha.hospedagem.report.RelatorioAtendimentos;
 import br.com.itarocha.hospedagem.util.StrUtil;
 
 @ApplicationScoped
-@Transactional
 public class RelatorioGeralService {
 
 	@Inject EntityManager em;

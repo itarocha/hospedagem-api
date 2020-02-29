@@ -16,7 +16,6 @@ import br.com.itarocha.hospedagem.model.SituacaoLeito;
 import br.com.itarocha.hospedagem.service.SituacaoLeitoService;
 
 import javax.inject.Inject;
-import javax.transaction.Transactional;
 import javax.validation.Validator;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -25,7 +24,6 @@ import javax.ws.rs.core.Response;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.OK;
 
-@Transactional
 @Path("/api/app/situacao_leito")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)

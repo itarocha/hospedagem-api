@@ -12,13 +12,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import br.com.itarocha.hospedagem.model.audit.UserDateAudit;
 
 @Entity
 @Table(name="hospedagem_tipo_servico")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) // "leitos", "hospedagem" 
 public class HospedagemTipoServico extends UserDateAudit implements Serializable, IEntity {
 	
 	/**

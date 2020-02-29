@@ -3,6 +3,8 @@ package br.com.itarocha.hospedagem.model;
 import java.io.Serializable;
 import java.time.LocalDate;
 
+import javax.json.bind.annotation.JsonbTransient;
+
 //import java.util.Date;
 
 import javax.persistence.Column;
@@ -17,13 +19,10 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import br.com.itarocha.hospedagem.model.audit.UserDateAudit;
 
 @Entity
 @Table(name="hospede_leito")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "quarto", "leito", "hospede"})
 public class HospedeLeito extends UserDateAudit implements Serializable, IEntity {
 	
 	private static final long serialVersionUID = 5590030840087022870L;
@@ -35,6 +34,7 @@ public class HospedeLeito extends UserDateAudit implements Serializable, IEntity
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="hospede_id")
 	@NotNull(message="Hóspede precisa ser informado")
+	@JsonbTransient
 	private Hospede hospede;
 	
 	
@@ -49,11 +49,13 @@ public class HospedeLeito extends UserDateAudit implements Serializable, IEntity
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="quarto_id")
 	@NotNull(message="Quarto precisa ser informado")
+	@JsonbTransient
 	private Quarto quarto;
 	
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="leito_id")
 	@NotNull(message="Leito precisa ser informado")
+	@JsonbTransient
 	private Leito leito;
 	
 	@Transient

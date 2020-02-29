@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -18,8 +19,6 @@ import javax.persistence.TypedQuery;
 
 import br.com.itarocha.hospedagem.dto.hospedagem.*;
 import br.com.itarocha.hospedagem.validation.ResultError;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import br.com.itarocha.hospedagem.exception.ValidationException;
 import br.com.itarocha.hospedagem.model.DestinacaoHospedagem;
@@ -55,8 +54,7 @@ import br.com.itarocha.hospedagem.repository.TipoServicoRepository;
 import br.com.itarocha.hospedagem.util.LocalDateUtils;
 import br.com.itarocha.hospedagem.util.StrUtil;
 
-@Service
-@Transactional
+@ApplicationScoped
 public class HospedagemService {
 
 	private static final int QTD_DIAS = 7;

@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 import br.com.itarocha.hospedagem.validation.ResultError;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import br.com.itarocha.hospedagem.exception.ValidationException;
 import br.com.itarocha.hospedagem.model.Pessoa;
@@ -16,11 +16,9 @@ import br.com.itarocha.hospedagem.repository.PessoaRepository;
 @ApplicationScoped
 public class PessoaService {
 
-	@Autowired
-	private PessoaRepository repositorio;
+	@Inject PessoaRepository repositorio;
 
-	@Autowired
-	private EnderecoRepository enderecoRepo;
+	@Inject EnderecoRepository enderecoRepo;
 
 	public PessoaService() {
 	}

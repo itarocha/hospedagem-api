@@ -2,6 +2,7 @@ package br.com.itarocha.hospedagem.model;
 
 import java.io.Serializable;
 
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -13,15 +14,10 @@ import javax.persistence.Table;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import br.com.itarocha.hospedagem.model.audit.UserDateAudit;
-
-//import org.codehaus.jackson.annotate.JsonIgnore;
 
 @Entity
 @Table(name="leito")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "quarto"}) // "leitos", 
 public class Leito extends UserDateAudit implements Serializable, IEntity {
 	
 	private static final long serialVersionUID = 5765750404479537331L;
@@ -33,6 +29,7 @@ public class Leito extends UserDateAudit implements Serializable, IEntity {
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="quarto_id")
 	@NotNull
+	@JsonbTransient
 	private Quarto quarto;
 
 	@NotNull(message="Número Sequencial precisa ser informada")

@@ -19,8 +19,6 @@ import javax.ws.rs.core.Response;
 
 import static javax.ws.rs.core.Response.Status.*;
 
-
-@Transactional
 @Path("/api/app/encaminhadores")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -31,7 +29,8 @@ public class EncaminhadoresController {
 
     @Inject Validator validator;
 
-	@Path("{id}")
+    @GET
+	@Path("/{id}")
 	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
 	public Response getById(@PathParam("id") Long id) {
         try {
@@ -47,7 +46,8 @@ public class EncaminhadoresController {
         }
 	}
 
-    @Path(value="/por_encaminhador/{id}")
+    @GET
+    @Path("/por_encaminhador/{id}")
 	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
 	public Response listar(@PathParam("id") Long entidadeId) {
 		List<Encaminhador> lista = service.findAll(entidadeId);
@@ -71,7 +71,7 @@ public class EncaminhadoresController {
 	}
 
 	@DELETE
-    @Path("{id}")
+    @Path("/{id}")
 	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
 	public Response excluir(@PathParam("id") Long id) {
 		try {
@@ -84,6 +84,7 @@ public class EncaminhadoresController {
 		}
 	}
 	
+	@GET
 	@Path("/lista/{id}")
 	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
 	public Response getListaEncaminhadores(@PathParam("id") Long entidadeId) {

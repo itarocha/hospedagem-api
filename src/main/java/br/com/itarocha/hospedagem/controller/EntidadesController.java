@@ -11,7 +11,6 @@ import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.inject.Inject;
-import javax.transaction.Transactional;
 import javax.validation.Validator;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -20,7 +19,6 @@ import java.util.List;
 
 import static javax.ws.rs.core.Response.Status.*;
 
-@Transactional
 @Path("/api/app/entidades")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -31,7 +29,8 @@ public class EntidadesController {
 
     @Inject Validator validator;
 
-	@Path("{id}")
+    @GET
+	@Path("/{id}")
 	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
 	public Response getById(@PathParam("id") Long id) {
         try {

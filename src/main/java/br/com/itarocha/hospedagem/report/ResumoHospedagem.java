@@ -119,5 +119,4 @@ public class ResumoHospedagem {
 		this.pessoa = pessoa;
 	}
 
-	
 }

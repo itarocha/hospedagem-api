@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -21,13 +22,10 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import br.com.itarocha.hospedagem.model.audit.UserDateAudit;
 
 @Entity
 @Table(name="hospedagem")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "hospedes"})
 public class Hospedagem  extends UserDateAudit implements Serializable, IEntity {
 
 	private static final long serialVersionUID = 1841335162635443594L;
@@ -72,6 +70,7 @@ public class Hospedagem  extends UserDateAudit implements Serializable, IEntity 
 	private String observacoes;
 	
 	@OneToMany(mappedBy = "hospedagem",fetch=FetchType.LAZY)
+	@JsonbTransient
 	private List<Hospede> hospedes = new ArrayList<Hospede>();
 	
 	@OneToMany(mappedBy = "hospedagem",fetch=FetchType.LAZY)

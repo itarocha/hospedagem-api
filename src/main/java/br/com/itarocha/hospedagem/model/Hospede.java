@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -18,13 +19,10 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import br.com.itarocha.hospedagem.model.audit.UserDateAudit;
 
 @Entity
 @Table(name="hospede")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "hospedagem"}) // "leitos", 
 public class Hospede extends UserDateAudit implements Serializable, IEntity {
 	
 	private static final long serialVersionUID = 7525841265591324037L;
@@ -36,6 +34,7 @@ public class Hospede extends UserDateAudit implements Serializable, IEntity {
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="hospedagem_id")
 	@NotNull(message="Hospedagem precisa ser informado")
+	@JsonbTransient
 	private Hospedagem hospedagem;
 	
 	@ManyToOne(fetch=FetchType.LAZY)

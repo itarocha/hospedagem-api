@@ -11,7 +11,7 @@ import br.com.itarocha.hospedagem.service.HospedagemService;
 import br.com.itarocha.hospedagem.service.PlanilhaGeralService;
 import br.com.itarocha.hospedagem.service.RelatorioGeralService;
 import br.com.itarocha.hospedagem.validation.ItaValidator;
-import org.apache.commons.io.IOUtils;
+//import org.apache.commons.io.IOUtils;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 //import org.springframework.core.io.InputStreamResource;
@@ -30,7 +30,6 @@ import java.util.List;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.OK;
 
-@Transactional
 @Path("/api/app/hospedagem")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)

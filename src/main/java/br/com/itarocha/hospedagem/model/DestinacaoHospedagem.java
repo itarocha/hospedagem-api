@@ -9,14 +9,14 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+//import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import br.com.itarocha.hospedagem.model.audit.UserDateAudit;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Entity
 @Table(name="destinacao_hospedagem")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+//@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Schema(description = "Destinação de Hospedagem")
 public class DestinacaoHospedagem  extends UserDateAudit implements IEntity, Serializable {
 

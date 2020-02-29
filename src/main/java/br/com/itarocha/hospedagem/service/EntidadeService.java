@@ -4,8 +4,10 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
 
 import br.com.itarocha.hospedagem.dto.SelectValueVO;
 import br.com.itarocha.hospedagem.model.Entidade;
@@ -17,7 +19,7 @@ import br.com.itarocha.hospedagem.exception.ValidationException;
 @ApplicationScoped
 public class EntidadeService {
 
-	@Inject EntityManager em;
+	//@Inject EntityManager em;
 
 	@Inject EntidadeRepository repositorio;
 

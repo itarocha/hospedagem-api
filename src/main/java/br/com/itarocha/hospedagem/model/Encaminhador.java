@@ -2,6 +2,7 @@ package br.com.itarocha.hospedagem.model;
 
 import java.io.Serializable;
 
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -17,13 +18,15 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+//import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import br.com.itarocha.hospedagem.model.audit.UserDateAudit;
 
+//https://javaee.github.io/jsonb-spec/users-guide.html
+
 @Entity
 @Table(name="encaminhador")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+//@JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "entidade"})
 public class Encaminhador extends UserDateAudit implements Serializable, IEntity {
 	
 	private static final long serialVersionUID = 4127725617611839075L;
@@ -35,6 +38,7 @@ public class Encaminhador extends UserDateAudit implements Serializable, IEntity
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="entidade_id")
 	@NotNull(message="Entidade é obrigatória")
+	@JsonbTransient
 	private Entidade entidade;
 	
 	@NotNull(message="Nome é obrigatório")

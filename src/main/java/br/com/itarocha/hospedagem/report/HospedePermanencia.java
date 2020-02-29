@@ -4,9 +4,9 @@ import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import br.com.itarocha.betesda.model.Hospedagem;
-import br.com.itarocha.betesda.model.Hospede;
-import br.com.itarocha.betesda.model.Pessoa;
+import br.com.itarocha.hospedagem.model.Hospedagem;
+import br.com.itarocha.hospedagem.model.Hospede;
+import br.com.itarocha.hospedagem.model.Pessoa;
 
 @JsonIgnoreProperties({"hibernateLazyInitializer", "hospedagem", "hospede" })
 public class HospedePermanencia {

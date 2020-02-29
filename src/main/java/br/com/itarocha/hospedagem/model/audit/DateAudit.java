@@ -3,6 +3,7 @@ package br.com.itarocha.hospedagem.model.audit;
 import java.io.Serializable;
 import java.time.Instant;
 
+import javax.persistence.Column;
 //import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.PrePersist;
@@ -24,9 +25,11 @@ public abstract class DateAudit implements Serializable {
 	private static final long serialVersionUID = 4065579033678023594L;
 
 	//@CreatedDate
+	@Column(name = "created_at")
     private Instant createdAt;
 
     //@LastModifiedDate
+	@Column(name = "updated_at")
     private Instant updatedAt;
 
     public Instant getCreatedAt() {

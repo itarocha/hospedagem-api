@@ -26,7 +26,5 @@ public class ChaveValor {
 	public void setQuantidade(Integer quantidade) {
 		this.quantidade = quantidade;
 	}
-	
-	
-	
+
 }

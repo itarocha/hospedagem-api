@@ -18,7 +18,7 @@ public class EntidadeRepository extends AbstractRepository<Entidade, Long> {
     public EntidadeRepository(EntityManager em) {
         super(em);
     }
-
+    
     public List<SelectValueVO> listSelect() {
         return super.getListSelect("id", "nome", "nome");
     }
