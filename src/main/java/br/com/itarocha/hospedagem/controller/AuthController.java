@@ -27,7 +27,7 @@ import br.com.itarocha.hospedagem.repository.UserRepository;
 import static javax.ws.rs.core.Response.Status.OK;
 
 
-@Path("/api/app/auth")
+@Path("/api/auth")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "auth")
@@ -63,6 +63,7 @@ public class AuthController {
     @POST
     @Path("/login")
     public Response authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+    	System.out.println("*************************************** login failed");
         /*
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
