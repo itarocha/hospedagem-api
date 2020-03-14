@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -49,11 +50,12 @@ public class Quarto  extends UserDateAudit implements Serializable, IEntity {
 	private DestinacaoHospedagem destinacaoHospedagem;
 	*/
 	
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "quarto_destinacoes",
             joinColumns = @JoinColumn(name = "quarto_id"),
             inverseJoinColumns = @JoinColumn(name = "destinacao_hospedagem_id"))
-    private Set<DestinacaoHospedagem> destinacoes = new HashSet<>();
+	//@JsonbTransient
+	private Set<DestinacaoHospedagem> destinacoes = new HashSet<>();
 	
 	@OneToMany(mappedBy = "quarto",fetch=FetchType.EAGER)
 	@OrderBy("numero ASC")

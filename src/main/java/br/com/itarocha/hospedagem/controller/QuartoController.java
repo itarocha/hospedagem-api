@@ -1,6 +1,5 @@
 package br.com.itarocha.hospedagem.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,6 +21,8 @@ import br.com.itarocha.hospedagem.service.TipoHospedeService;
 import br.com.itarocha.hospedagem.service.TipoLeitoService;
 import br.com.itarocha.hospedagem.service.TipoServicoService;
 
+import javax.annotation.security.RolesAllowed;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Validator;
@@ -31,10 +32,12 @@ import javax.ws.rs.core.Response;
 
 import static javax.ws.rs.core.Response.Status.*;
 
+@RequestScoped
 @Path("/api/app/quarto")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "config")
+@Transactional
 public class QuartoController {
 
 	@Inject QuartoService service;
@@ -55,15 +58,17 @@ public class QuartoController {
 
 	@GET
 	@APIResponse(responseCode="200", description="Sucesso")
-	// @PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"USER", "ADMIN", "ROOT"})
 	public Response listar() {
-		// List<Quarto>
-		return Response.status(OK).entity(service.findAll()).build();
+		List<Quarto> lst = service.findAll();
+
+
+		return Response.status(OK).entity(lst).build();
 	}
 
 	@GET
 	@Path("/{id}")
-	// @PreAuthorize("hasAnyRole('ADMIN','ROOT')")
+	@RolesAllowed({"USER", "ADMIN", "ROOT"})
 	@APIResponse(responseCode="200", description="Sucesso")
 	@APIResponse(responseCode="404", description="Caso a chave não seja localizada")
 	//@Operation(summary = "Buscar por id", description = "Efetua busca de Destinação de Hospedagem baseado na chave definida no parâmetro \"id\"")
@@ -84,7 +89,7 @@ public class QuartoController {
 
 	@GET
 	@Path("/leito/{id}")
-	//@PreAuthorize("hasAnyRole('ADMIN','ROOT')")
+	@RolesAllowed({"USER", "ADMIN", "ROOT"})
 	public Response getLeitoById(@PathParam("id") Long id) {
 		try {
 			Optional<Leito> optLeito = service.findLeito(id);
@@ -111,7 +116,7 @@ public class QuartoController {
 	
 	@GET
 	@Path("/por_destinacao_hospedagem/{id}")
-	// @PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"USER", "ADMIN", "ROOT"})
 	public Response listarByDestinacaoHospedagem(@PathParam("id") Long id) {
 		List<Quarto> lista = service.findAllByDestinacaoHospedagem(id);
 		return Response.status(OK).entity(lista).build();
@@ -119,7 +124,7 @@ public class QuartoController {
 
 	@GET
 	@Path("/{id}/leitos")
-	// @PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"USER", "ADMIN", "ROOT"})
 	public Response listarLeitosByQuarto(@PathParam("id") Long id) {
 		List<Leito> lista = service.findLeitosByQuarto(id);
 		return Response.status(OK).entity(lista).build();
@@ -127,21 +132,21 @@ public class QuartoController {
 
 	@GET
 	@Path("/leitos_disponiveis")
-	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"USER", "ADMIN", "ROOT"})
 	public Response listarLeitosDisponiveis() {
 		List<Leito> lista = service.findLeitosDisponiveis();
 		return Response.status(OK).entity(lista).build();
 	}
 
 	@POST
-	//@PreAuthorize("hasAnyRole('ADMIN','ROOT')")
+	@RolesAllowed({"ADMIN", "ROOT"})
 	public Response gravar(@RequestBody NovoQuartoVO model) throws Exception {
 		ItaValidator<NovoQuartoVO> v = new ItaValidator<NovoQuartoVO>(model).validate(validator);
 		if (service.existeOutroQuartoComEsseNumero(model.getNumero())) {
 			v.addError("numero", "Existe outro Quarto com esse número");
 		}
 		
-		if (!v.hasErrors() ) {
+		if (v.hasErrors() ) {
 			return Response.status(BAD_REQUEST).entity(v.getErrors()).build();
 		}
 	
@@ -153,7 +158,7 @@ public class QuartoController {
 
 	@POST
 	@Path("/alterar")
-	//@PreAuthorize("hasAnyRole('ADMIN','ROOT')")
+	@RolesAllowed({"ADMIN", "ROOT"})
 	public Response gravarAlteracao(@RequestBody EditQuartoVO model) {
 		ItaValidator<EditQuartoVO> v = new ItaValidator<EditQuartoVO>(model).validate(validator);
 		try {
@@ -163,7 +168,7 @@ public class QuartoController {
 				}
 			}
 			
-			if (!v.hasErrors() ) {
+			if (v.hasErrors() ) {
 				return Response.status(BAD_REQUEST).entity(v.getErrors()).build();
 			}
 		
@@ -177,7 +182,7 @@ public class QuartoController {
 
 	@POST
 	@Path("/leito")
-	//@PreAuthorize("hasAnyRole('ADMIN','ROOT')")
+	@RolesAllowed({"ADMIN", "ROOT"})
 	public Response gravarLeito(@RequestBody EditLeitoVO model) {
 		ItaValidator<EditLeitoVO> v = new ItaValidator<EditLeitoVO>(model).validate(validator);
 		
@@ -191,7 +196,7 @@ public class QuartoController {
 					v.addError("numero", "Existe outro Leito com esse número");
 				}
 			}
-			if (!v.hasErrors() ) {
+			if (v.hasErrors() ) {
 				return Response.status(INTERNAL_SERVER_ERROR).entity(v.getErrors()).build();
 			}
 
@@ -205,7 +210,7 @@ public class QuartoController {
 
 	@DELETE
 	@Path("/{id}")
-	//@PreAuthorize("hasAnyRole('ADMIN','ROOT')")
+	@RolesAllowed({"ADMIN", "ROOT"})
 	public Response excluir(@PathParam("id") Long id) {
 
 		try {
@@ -220,7 +225,7 @@ public class QuartoController {
 
 	@DELETE
 	@Path("/leito/{id}")
-	//@PreAuthorize("hasAnyRole('ADMIN','ROOT')")
+	@RolesAllowed({"ADMIN", "ROOT"})
 	public Response excluirLeito(@PathParam("id") Long id) {
 		try {
 			if (!service.removeLeito(id)){
@@ -234,24 +239,20 @@ public class QuartoController {
 
 	@GET
 	@Path("/listas")
-	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"USER", "ADMIN", "ROOT"})
 	public Response listas() {
-		AutoWired retorno = new AutoWired();
-		retorno.listaTipoLeito = tls.listSelect();
-		retorno.listaDestinacaoHospedagem = dhs.listSelect();
-		retorno.listaSituacaoLeito = sls.listSelect();
-		retorno.listaTipoHospede = ths.listSelect();
-		retorno.listaTipoServico = tss.listSelect();
-		retorno.listaEntidade = etds.listSelect();
+		ListasVO retorno = new ListasVO();
+		try {
+			retorno.setListaTipoLeito(tls.listSelect());
+			retorno.setListaDestinacaoHospedagem(dhs.listSelect());
+			retorno.setListaSituacaoLeito(sls.listSelect());
+			retorno.setListaTipoHospede(ths.listSelect());
+			retorno.setListaTipoServico(tss.listSelect());
+			retorno.setListaEntidade(etds.listSelect());
+		} catch (Exception e){
+			e.printStackTrace();
+		}
 		return Response.status(OK).entity(retorno).build();
 	}
-	
-	static class AutoWired {
-		public List<SelectValueVO> listaTipoLeito = new ArrayList<SelectValueVO>();
-		public List<SelectValueVO> listaDestinacaoHospedagem = new ArrayList<SelectValueVO>();
-		public List<SelectValueVO> listaSituacaoLeito = new ArrayList<SelectValueVO>();
-		public List<SelectValueVO> listaTipoHospede = new ArrayList<SelectValueVO>();
-		public List<SelectValueVO> listaTipoServico = new ArrayList<SelectValueVO>();
-		public List<SelectValueVO> listaEntidade = new ArrayList<SelectValueVO>();
-	} 
+
 }

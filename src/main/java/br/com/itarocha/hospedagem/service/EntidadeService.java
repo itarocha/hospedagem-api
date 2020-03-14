@@ -19,8 +19,6 @@ import br.com.itarocha.hospedagem.exception.ValidationException;
 @ApplicationScoped
 public class EntidadeService {
 
-	//@Inject EntityManager em;
-
 	@Inject EntidadeRepository repositorio;
 
 	@Inject EnderecoRepository enderecoRepo;

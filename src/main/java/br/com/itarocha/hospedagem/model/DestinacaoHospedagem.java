@@ -1,6 +1,7 @@
 package br.com.itarocha.hospedagem.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,14 +10,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-//import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import br.com.itarocha.hospedagem.model.audit.UserDateAudit;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Entity
 @Table(name="destinacao_hospedagem")
-//@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Schema(description = "Destinação de Hospedagem")
 public class DestinacaoHospedagem  extends UserDateAudit implements IEntity, Serializable {
 
@@ -44,5 +42,18 @@ public class DestinacaoHospedagem  extends UserDateAudit implements IEntity, Ser
 	public void setDescricao(String descricao) {
 		this.descricao = descricao;
 	}
-	
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		DestinacaoHospedagem that = (DestinacaoHospedagem) o;
+		return id.equals(that.id) &&
+				descricao.equals(that.descricao);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, descricao);
+	}
 }

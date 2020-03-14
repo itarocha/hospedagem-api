@@ -16,6 +16,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import javax.transaction.Transactional;
 
 import br.com.itarocha.hospedagem.dto.hospedagem.*;
 import br.com.itarocha.hospedagem.validation.ResultError;

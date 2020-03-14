@@ -12,6 +12,8 @@ import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
+import javax.annotation.security.RolesAllowed;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Validator;
@@ -23,10 +25,12 @@ import java.util.List;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.OK;
 
+@RequestScoped
 @Path("/api/app/tipo_hospede")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "config")
+@Transactional
 public class TipoHospedeController {
 
 	@Inject TipoHospedeService service;
@@ -35,7 +39,7 @@ public class TipoHospedeController {
 
 	@GET
 	@APIResponse(responseCode="200", description="Sucesso")
-	// @PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"USER", "ADMIN", "ROOT"})
 	@Operation(summary = "Listar", description = "Retorna todas as Tipo de Hóspede cadastradas")
 	public Response listar() {
 		List<TipoHospede> lista = service.findAll();
@@ -62,8 +66,8 @@ public class TipoHospedeController {
 		}
 	}
 
-	// @PreAuthorize("hasAnyRole('ADMIN','ROOT')")
 	@POST
+	@RolesAllowed({"ADMIN", "ROOT"})
 	@APIResponse(responseCode="200", description="Sucesso")
 	@APIResponse(responseCode="400", description="Caso as validações não passem")
 	@Operation(summary = "Gravar", description = "Grava Tipo de Hóspede")
@@ -83,9 +87,9 @@ public class TipoHospedeController {
 		}
 	}
 
-	//@PreAuthorize("hasAnyRole('ADMIN','ROOT')")
 	@DELETE
 	@Path("/{id}")
+	@RolesAllowed({"ADMIN", "ROOT"})
 	@APIResponse(responseCode="200", description="Ok")
 	@APIResponse(responseCode="404", description="Caso a chave não seja localizada")
 	@APIResponse(responseCode="500", description="Ocorre quando não foi possível excluir")

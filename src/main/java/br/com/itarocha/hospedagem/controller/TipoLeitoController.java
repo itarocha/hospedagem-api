@@ -5,6 +5,7 @@ import br.com.itarocha.hospedagem.dto.TipoLeitoDTO;
 import br.com.itarocha.hospedagem.model.TipoLeito;
 import br.com.itarocha.hospedagem.service.TipoLeitoService;
 import br.com.itarocha.hospedagem.validation.ItaValidator;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -12,23 +13,30 @@ import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
+import javax.annotation.security.RolesAllowed;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Validator;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import java.util.List;
 
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.OK;
 
+@RequestScoped
 @Path("/api/app/tipo_leito")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "config")
-
+@Transactional
 public class TipoLeitoController {
+
+	@Inject JsonWebToken jwt;
 
 	@Inject
 	TipoLeitoService service;
@@ -37,15 +45,18 @@ public class TipoLeitoController {
 
 	@GET
 	@APIResponse(responseCode="200", description="Sucesso")
-	// @PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"ADMIN", "ROOT"})
 	@Operation(summary = "Listar", description = "Retorna todos os Tipos de Leito cadastrados")
-	public Response listar() {
+	public Response listar(@Context SecurityContext ctx) {
+		//String[] email = jwt.getClaim("email");
+
 		List<TipoLeito> lista = service.findAll();
 		return Response.status(OK).entity(lista).build();
 	}
 
 	@GET
 	@Path("/{id}")
+	@RolesAllowed({"ADMIN","ROOT"})
 	@APIResponse(responseCode="200", description="Sucesso")
 	@APIResponse(responseCode="404", description="Caso a chave não seja localizada")
 	@Operation(summary = "Buscar por id", description = "Efetua busca de Tipos de Leitos baseado na chave definida no parâmetro \"id\"")
@@ -64,8 +75,8 @@ public class TipoLeitoController {
 		}
 	}
 
-	// @PreAuthorize("hasAnyRole('ADMIN','ROOT')")
 	@POST
+	@RolesAllowed({"ADMIN","ROOT"})
 	@APIResponse(responseCode="200", description="Sucesso")
 	@APIResponse(responseCode="400", description="Caso as validações não passem")
 	@Operation(summary = "Gravar", description = "Grava Tipo de Leito")
@@ -88,6 +99,7 @@ public class TipoLeitoController {
 	//@PreAuthorize("hasAnyRole('ADMIN','ROOT')")
 	@DELETE
 	@Path("/{id}")
+	@RolesAllowed({"ADMIN", "ROOT"})
 	@APIResponse(responseCode="200", description="Ok")
 	@APIResponse(responseCode="404", description="Caso a chave não seja localizada")
 	@APIResponse(responseCode="500", description="Ocorre quando não foi possível excluir")

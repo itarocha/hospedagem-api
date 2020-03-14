@@ -11,6 +11,7 @@ import br.com.itarocha.hospedagem.model.TipoHospede;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 @ApplicationScoped
 public class TipoHospedeService {

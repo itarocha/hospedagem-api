@@ -10,7 +10,10 @@ import br.com.itarocha.hospedagem.validators.Validadores;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
+import javax.annotation.security.RolesAllowed;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.Validator;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -19,10 +22,12 @@ import java.util.List;
 
 import static javax.ws.rs.core.Response.Status.*;
 
+@RequestScoped
 @Path("/api/app/entidades")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "cadastros")
+@Transactional
 public class EntidadesController {
 
 	@Inject EntidadeService service;
@@ -31,7 +36,7 @@ public class EntidadesController {
 
     @GET
 	@Path("/{id}")
-	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"USER","ADMIN", "ROOT"})
 	public Response getById(@PathParam("id") Long id) {
         try {
             return service.find(id)
@@ -47,7 +52,7 @@ public class EntidadesController {
 	}
 
 	@GET
-	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"USER","ADMIN", "ROOT"})
 	public Response listar() {
 		List<Entidade> lista = service.findAll();
         return Response.status(OK).entity(lista).build();
@@ -55,14 +60,14 @@ public class EntidadesController {
 
 	@GET
 	@Path("/consultar/{texto}")
-	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"USER","ADMIN", "ROOT"})
 	public Response consultar(@PathParam("texto") String texto) {
 		List<Entidade> lista = service.consultar(texto);
         return Response.status(OK).entity(lista).build();
 	}
 
 	@POST
-	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"USER","ADMIN", "ROOT"})
 	public Response gravar(@RequestBody Entidade model) {
 		
 		if (model.getCnpj() != null) {
@@ -97,7 +102,7 @@ public class EntidadesController {
 
 	@DELETE
 	@Path("{id}")
-	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"USER","ADMIN", "ROOT"})
 	public Response excluir(@PathParam("id") Long id) {
         try {
             if (!service.remove(id)){

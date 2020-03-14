@@ -15,7 +15,10 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import br.com.itarocha.hospedagem.model.SituacaoLeito;
 import br.com.itarocha.hospedagem.service.SituacaoLeitoService;
 
+import javax.annotation.security.RolesAllowed;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.Validator;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -24,10 +27,12 @@ import javax.ws.rs.core.Response;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.OK;
 
+@RequestScoped
 @Path("/api/app/situacao_leito")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "config")
+@Transactional
 public class SituacaoLeitoController {
 
 	@Inject SituacaoLeitoService service;
@@ -36,7 +41,7 @@ public class SituacaoLeitoController {
 
 	@GET
 	@APIResponse(responseCode="200", description="Sucesso")
-	// @PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"USER", "ADMIN", "ROOT"})
 	@Operation(summary = "Listar", description = "Retorna todas as Situações de Leito cadastradas")
 	public Response listar() {
 		List<SituacaoLeito> lista = service.findAll();
@@ -63,8 +68,8 @@ public class SituacaoLeitoController {
 		}
 	}
 
-	// @PreAuthorize("hasAnyRole('ADMIN','ROOT')")
 	@POST
+	@RolesAllowed({"ADMIN", "ROOT"})
 	@APIResponse(responseCode="200", description="Sucesso")
 	@APIResponse(responseCode="400", description="Caso as validações não passem")
 	@Operation(summary = "Gravar", description = "Grava Situação de Leito")
@@ -82,9 +87,9 @@ public class SituacaoLeitoController {
 		}
 	}
 
-	//@PreAuthorize("hasAnyRole('ADMIN','ROOT')")
 	@DELETE
 	@Path("/{id}")
+	@RolesAllowed({"ADMIN", "ROOT"})
 	@APIResponse(responseCode="200", description="Ok")
 	@APIResponse(responseCode="404", description="Caso a chave não seja localizada")
 	@APIResponse(responseCode="500", description="Ocorre quando não foi possível excluir")

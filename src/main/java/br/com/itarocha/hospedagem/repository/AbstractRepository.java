@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 import br.com.itarocha.hospedagem.dto.SelectValueVO;
-import br.com.itarocha.hospedagem.model.DestinacaoHospedagem;
 import br.com.itarocha.hospedagem.model.IEntity;
 
 //https://vertx.io/docs/vertx-mysql-client/java/
@@ -97,7 +96,7 @@ public abstract class AbstractRepository<Entity extends IEntity, PK extends Numb
     public List<SelectValueVO> getListSelect(String idField, String textField, String orderField ){
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<SelectValueVO> criteriaQuery = cb.createQuery(SelectValueVO.class);
-        Root<DestinacaoHospedagem> root = criteriaQuery.from(DestinacaoHospedagem.class);
+        Root<Entity> root = criteriaQuery.from(entityClass);
         Path<Long> pathId = root.get(idField);
         Path<String> pathDescricao = root.get(textField);
         criteriaQuery.select(cb.construct(SelectValueVO.class, pathId, pathDescricao));

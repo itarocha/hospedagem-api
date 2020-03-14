@@ -1,5 +1,7 @@
 package br.com.itarocha.hospedagem.controller;
 
+import javax.annotation.security.RolesAllowed;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Validator;
@@ -23,10 +25,11 @@ import br.com.itarocha.hospedagem.validation.ItaValidator;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.OK;
 
-@Transactional
+@RequestScoped
 @Path("/api/app/destinacao_hospedagem")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@Transactional
 @Tag(name = "config")
 public class DestinacoesHospedagemController {
 
@@ -38,7 +41,7 @@ public class DestinacoesHospedagemController {
 
 	@GET
 	@APIResponse(responseCode="200", description="Sucesso")
-	// @PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"ADMIN", "ROOT"})
 	@Operation(summary = "Listar", description = "Retorna todas as Destinações de Hospedagens cadastradas")
 	public Response listar() {
 		return Response.status(OK).entity(service.findAll()).build();
@@ -46,6 +49,7 @@ public class DestinacoesHospedagemController {
 
 	@GET
 	@Path("/{id}")
+	@RolesAllowed({"ADMIN", "ROOT"})
 	@APIResponse(responseCode="200", description="Sucesso")
 	@APIResponse(responseCode="404", description="Caso a chave não seja localizada")
 	@Operation(summary = "Buscar por id", description = "Efetua busca de Destinação de Hospedagem baseado na chave definida no parâmetro \"id\"")
@@ -64,8 +68,8 @@ public class DestinacoesHospedagemController {
 		}
 	}
 
-	// @PreAuthorize("hasAnyRole('ADMIN','ROOT')")
 	@POST
+	@RolesAllowed({"ADMIN", "ROOT"})
 	@APIResponse(responseCode="200", description="Sucesso")
 	@APIResponse(responseCode="400", description="Caso as validações não passem")
 	@Operation(summary = "Gravar", description = "Grava Destinação de Hospedagem")
@@ -83,9 +87,9 @@ public class DestinacoesHospedagemController {
 		}
 	}
     
-	//@PreAuthorize("hasAnyRole('ADMIN','ROOT')")
 	@DELETE
 	@Path("/{id}")
+	@RolesAllowed({"ADMIN", "ROOT"})
 	@APIResponse(responseCode="200", description="Ok")
 	@APIResponse(responseCode="404", description="Caso a chave não seja localizada")
 	@APIResponse(responseCode="500", description="Ocorre quando não foi possível excluir")

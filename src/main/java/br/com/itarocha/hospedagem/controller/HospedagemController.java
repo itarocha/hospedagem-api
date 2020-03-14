@@ -16,6 +16,8 @@ import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 //import org.springframework.core.io.InputStreamResource;
 
+import javax.annotation.security.RolesAllowed;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Validator;
@@ -30,10 +32,12 @@ import java.util.List;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.OK;
 
+@RequestScoped
 @Path("/api/app/hospedagem")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "movimentação")
+@Transactional
 public class HospedagemController {
 
 	@Inject
@@ -45,7 +49,7 @@ public class HospedagemController {
 	@Inject	Validator validator;
 
 	@POST
-	////@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"USER", "ADMIN", "ROOT"})
 	public Response gravar(@RequestBody HospedagemVO model) {
 		ItaValidator<HospedagemVO> v = new ItaValidator<HospedagemVO>(model).validate(validator);
 		
@@ -73,7 +77,7 @@ public class HospedagemController {
 			}
 		}
 		
-		if (!v.hasErrors() ) {
+		if (v.hasErrors() ) {
 			return Response.status(BAD_REQUEST).entity(v.getErrors()).build();
 		}
 		
@@ -89,7 +93,7 @@ public class HospedagemController {
 
 	@POST
 	@Path("/mapa")
-	////@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"USER", "ADMIN", "ROOT"})
 	public Response mapa(@RequestBody MapaHospedagemRequest model)
 	{
 		MapaRetorno retorno = service.buildMapaRetorno(model.data);
@@ -98,7 +102,7 @@ public class HospedagemController {
 
 	@POST
 	@Path("/mapa/linhas")
-	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"USER", "ADMIN", "ROOT"})
 	public Response mapaLinhas(@RequestBody MapaHospedagemRequest model)
 	{
 		MapaLinhas retorno = service.buildMapaLinhas(model.data);
@@ -107,7 +111,7 @@ public class HospedagemController {
 
 	@POST
 	@Path("/mapa/hospedes")
-	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"USER", "ADMIN", "ROOT"})
 	public Response mapaHospedes(@RequestBody MapaHospedagemRequest model)
 	{
 		MapaHospedes retorno = service.buildMapaHospedes(model.data);
@@ -116,7 +120,7 @@ public class HospedagemController {
 
 	@POST
 	@Path("/mapa/cidades")
-	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"USER", "ADMIN", "ROOT"})
 	public Response mapaCidades(@RequestBody MapaHospedagemRequest model)
 	{
 		MapaCidades retorno = service.buildMapaCidades(model.data);
@@ -125,7 +129,7 @@ public class HospedagemController {
 
 	@POST
 	@Path("/mapa/quadro")
-	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"USER", "ADMIN", "ROOT"})
 	public Response mapaQuadro(@RequestBody MapaHospedagemRequest model)
 	{
 		MapaQuadro retorno = service.buildMapaQuadro(model.data);
@@ -134,7 +138,7 @@ public class HospedagemController {
 
 	@POST
 	@Path("/planilha_geral")
-	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"USER", "ADMIN", "ROOT"})
 	public Response planilhaGeral(@RequestBody PeriodoRequest model)
 	{
 		ItaValidator<PeriodoRequest> v = new ItaValidator<PeriodoRequest>(model).validate(validator);
@@ -146,7 +150,7 @@ public class HospedagemController {
 			v.addError("dataFim", "Data Final deve ser preenchida");
 		}
 		
-		if (!v.hasErrors() ) {
+		if (v.hasErrors() ) {
 			return Response.status(BAD_REQUEST).entity(v.getErrors()).build();
 		}
 
@@ -156,7 +160,6 @@ public class HospedagemController {
 		} catch(Exception e) {
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new ResponseReturn(e.getMessage())).build();
 		}
-
 	}
 
 	//https://grokonez.com/spring-framework/spring-boot/excel-file-download-from-springboot-restapi-apache-poi-mysql
@@ -164,6 +167,7 @@ public class HospedagemController {
 	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
 	@POST
 	@Path("/planilha_geral_arquivo")
+	@RolesAllowed({"USER", "ADMIN", "ROOT"})
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
 	public Response planilhaGeralExcel(@RequestBody PeriodoRequest model) throws IOException {
 		ItaValidator<PeriodoRequest> v = new ItaValidator<PeriodoRequest>(model).validate(validator);
@@ -175,7 +179,7 @@ public class HospedagemController {
 			v.addError("dataFim", "Data Final deve ser preenchida");
 		}
 		
-		if (!v.hasErrors() ) {
+		if (v.hasErrors() ) {
 			return Response.status(BAD_REQUEST).entity(v.getErrors()).build();
 		}
 		
@@ -231,7 +235,7 @@ public class HospedagemController {
 
 	@POST
 	@Path("/leitos_ocupados")
-	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"USER", "ADMIN", "ROOT"})
 	public Response leitosOcupados(@RequestBody HospedagemPeriodoRequest model)
 	{
 
@@ -245,7 +249,7 @@ public class HospedagemController {
 
 	@POST
 	@Path("/mapa/alterar_hospede")
-	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"USER", "ADMIN", "ROOT"})
 	public Response alterarHospede(@RequestBody AlteracaoHospedeRequest model)
 	{
 		try {
@@ -258,7 +262,7 @@ public class HospedagemController {
 
 	@POST
 	@Path("/mapa/encerramento")
-	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"USER", "ADMIN", "ROOT"})
 	public Response encerramento(@RequestBody OperacoesRequest model)
 	{
 		try {
@@ -271,7 +275,7 @@ public class HospedagemController {
 	
 	@POST
 	@Path("/mapa/renovacao")
-	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"USER", "ADMIN", "ROOT"})
 	public Response renovacao(@RequestBody OperacoesRequest model)
 	{
 		try {

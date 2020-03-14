@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import br.com.itarocha.hospedagem.dto.SelectValueVO;
 import br.com.itarocha.hospedagem.dto.TipoLeitoDTO;

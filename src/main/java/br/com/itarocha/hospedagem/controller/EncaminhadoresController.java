@@ -10,6 +10,8 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import br.com.itarocha.hospedagem.model.Encaminhador;
 import br.com.itarocha.hospedagem.service.EncaminhadorService;
 
+import javax.annotation.security.RolesAllowed;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Validator;
@@ -19,10 +21,12 @@ import javax.ws.rs.core.Response;
 
 import static javax.ws.rs.core.Response.Status.*;
 
+@RequestScoped
 @Path("/api/app/encaminhadores")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "config")
+@Transactional
 public class EncaminhadoresController {
 
 	@Inject EncaminhadorService service;
@@ -31,7 +35,7 @@ public class EncaminhadoresController {
 
     @GET
 	@Path("/{id}")
-	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"USER","ADMIN", "ROOT"})
 	public Response getById(@PathParam("id") Long id) {
         try {
             return service.find(id)
@@ -48,14 +52,14 @@ public class EncaminhadoresController {
 
     @GET
     @Path("/por_encaminhador/{id}")
-	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"USER","ADMIN", "ROOT"})
 	public Response listar(@PathParam("id") Long entidadeId) {
 		List<Encaminhador> lista = service.findAll(entidadeId);
 		return Response.status(OK).entity(lista).build();
 	}
 
 	@POST
-	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"USER","ADMIN", "ROOT"})
 	public Response gravar(@RequestBody Encaminhador model) {
 		ItaValidator<Encaminhador> v = new ItaValidator<Encaminhador>(model).validate(validator);
 		if (!v.hasErrors() ) {
@@ -72,7 +76,7 @@ public class EncaminhadoresController {
 
 	@DELETE
     @Path("/{id}")
-	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"USER","ADMIN", "ROOT"})
 	public Response excluir(@PathParam("id") Long id) {
 		try {
 			if (!service.remove(id)){
@@ -86,7 +90,7 @@ public class EncaminhadoresController {
 	
 	@GET
 	@Path("/lista/{id}")
-	//@PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"USER","ADMIN", "ROOT"})
 	public Response getListaEncaminhadores(@PathParam("id") Long entidadeId) {
 		List<SelectValueVO> lista = service.listSelect(entidadeId);
 		return Response.status(OK).entity(lista).build();

@@ -12,6 +12,8 @@ import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
+import javax.annotation.security.RolesAllowed;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Validator;
@@ -23,11 +25,12 @@ import java.util.List;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.OK;
 
+@RequestScoped
 @Path("/api/app/tipo_servico")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "config")
-
+@Transactional
 public class TipoServicoController {
 
 	@Inject
@@ -37,7 +40,7 @@ public class TipoServicoController {
 
 	@GET
 	@APIResponse(responseCode="200", description="Sucesso")
-	// @PreAuthorize("hasAnyRole('USER','ADMIN','ROOT')")
+	@RolesAllowed({"USER", "ADMIN", "ROOT"})
 	@Operation(summary = "Listar", description = "Retorna todos os Tipos de Serviço cadastrados")
 	public List<TipoServico> listar() {
 		return service.findAll();
@@ -45,6 +48,7 @@ public class TipoServicoController {
 
 	@GET
 	@Path("/{id}")
+	@RolesAllowed({"USER", "ADMIN", "ROOT"})
 	@APIResponse(responseCode="200", description="Sucesso")
 	@APIResponse(responseCode="404", description="Caso a chave não seja localizada")
 	@Operation(summary = "Buscar por id", description = "Efetua busca de Tipos de Serviços baseado na chave definida no parâmetro \"id\"")
@@ -65,6 +69,7 @@ public class TipoServicoController {
 
 	// @PreAuthorize("hasAnyRole('ADMIN','ROOT')")
 	@POST
+	@RolesAllowed({"ADMIN", "ROOT"})
 	@APIResponse(responseCode="200", description="Sucesso")
 	@APIResponse(responseCode="400", description="Caso as validações não passem")
 	@Operation(summary = "Gravar", description = "Grava Tipos de Serviços")
@@ -84,9 +89,9 @@ public class TipoServicoController {
 		}
 	}
 
-	//@PreAuthorize("hasAnyRole('ADMIN','ROOT')")
 	@DELETE
 	@Path("/{id}")
+	@RolesAllowed({"ADMIN", "ROOT"})
 	@APIResponse(responseCode="200", description="Ok")
 	@APIResponse(responseCode="404", description="Caso a chave não seja localizada")
 	@APIResponse(responseCode="500", description="Ocorre quando não foi possível excluir")
