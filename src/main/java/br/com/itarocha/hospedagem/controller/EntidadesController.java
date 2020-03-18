@@ -2,7 +2,6 @@ package br.com.itarocha.hospedagem.controller;
 
 import br.com.itarocha.hospedagem.dto.ResponseReturn;
 import br.com.itarocha.hospedagem.exception.ValidationException;
-import br.com.itarocha.hospedagem.model.Encaminhador;
 import br.com.itarocha.hospedagem.model.Entidade;
 import br.com.itarocha.hospedagem.service.EntidadeService;
 import br.com.itarocha.hospedagem.validation.ItaValidator;
@@ -11,6 +10,7 @@ import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.annotation.security.RolesAllowed;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -20,21 +20,30 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
+import static javax.transaction.Transactional.TxType.NOT_SUPPORTED;
+import static javax.transaction.Transactional.TxType.REQUIRED;
 import static javax.ws.rs.core.Response.Status.*;
 
-@RequestScoped
+@ApplicationScoped
 @Path("/api/app/entidades")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "cadastros")
-@Transactional
 public class EntidadesController {
 
 	@Inject EntidadeService service;
 
     @Inject Validator validator;
 
-    @GET
+	@GET
+	@RolesAllowed({"USER","ADMIN", "ROOT"})
+	@Transactional(NOT_SUPPORTED)
+	public Response listar() {
+		List<Entidade> lista = service.findAll();
+		return Response.status(OK).entity(lista).build();
+	}
+
+	@GET
 	@Path("/{id}")
 	@RolesAllowed({"USER","ADMIN", "ROOT"})
 	public Response getById(@PathParam("id") Long id) {
@@ -52,13 +61,6 @@ public class EntidadesController {
 	}
 
 	@GET
-	@RolesAllowed({"USER","ADMIN", "ROOT"})
-	public Response listar() {
-		List<Entidade> lista = service.findAll();
-        return Response.status(OK).entity(lista).build();
-	}
-
-	@GET
 	@Path("/consultar/{texto}")
 	@RolesAllowed({"USER","ADMIN", "ROOT"})
 	public Response consultar(@PathParam("texto") String texto) {
@@ -68,6 +70,7 @@ public class EntidadesController {
 
 	@POST
 	@RolesAllowed({"USER","ADMIN", "ROOT"})
+	@Transactional(REQUIRED)
 	public Response gravar(@RequestBody Entidade model) {
 		
 		if (model.getCnpj() != null) {
@@ -85,7 +88,7 @@ public class EntidadesController {
 			}
 		}
 		
-		if (!v.hasErrors() ) {
+		if (v.hasErrors() ) {
 			return Response.status(BAD_REQUEST).entity(v.getErrors()).build();
 		}
 		

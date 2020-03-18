@@ -6,8 +6,6 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.transaction.Transactional;
 
 import br.com.itarocha.hospedagem.dto.SelectValueVO;
 import br.com.itarocha.hospedagem.model.Entidade;
@@ -28,13 +26,11 @@ public class EntidadeService {
 
 	public Entidade create(Entidade model) throws ValidationException {
 		try{
-			
 			Long id = model.getId() == null ? 0L : model.getId();
 			
 			if (this.entidadeCadastradaPorCampo(id, "cnpj", model.getCnpj())) {
 				throw new ValidationException(new ResultError().addError("cnpj", "CNPJ já casdastrado para outra Entidade"));
 			}
-			
 			enderecoRepo.save(model.getEndereco());
 			repositorio.save(model);
 		} catch (ValidationException e) {
@@ -58,7 +54,9 @@ public class EntidadeService {
 	}
 
 	public List<Entidade> findAll() {
-		return repositorio.getAll("nome");
+		//List<Entidade> entidades = repositorio.getAll("nome", new String[]{"encaminhadores"});
+		List<Entidade> entidades = repositorio.getAll("nome");
+		return entidades;
 	}
 
 	public List<Entidade> consultar(String texto) {

@@ -2,6 +2,7 @@ package br.com.itarocha.hospedagem.controller;
 
 import java.util.List;
 
+import br.com.itarocha.hospedagem.dto.EncaminhadorDTO;
 import br.com.itarocha.hospedagem.dto.ResponseReturn;
 import br.com.itarocha.hospedagem.dto.SelectValueVO;
 import br.com.itarocha.hospedagem.validation.ItaValidator;
@@ -11,7 +12,7 @@ import br.com.itarocha.hospedagem.model.Encaminhador;
 import br.com.itarocha.hospedagem.service.EncaminhadorService;
 
 import javax.annotation.security.RolesAllowed;
-import javax.enterprise.context.RequestScoped;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Validator;
@@ -19,23 +20,33 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import static javax.transaction.Transactional.TxType.*;
 import static javax.ws.rs.core.Response.Status.*;
 
-@RequestScoped
+@ApplicationScoped
 @Path("/api/app/encaminhadores")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "config")
-@Transactional
 public class EncaminhadoresController {
 
 	@Inject EncaminhadorService service;
 
     @Inject Validator validator;
 
-    @GET
+	@GET
+	@Path("/por_encaminhador/{id}")
+	@RolesAllowed({"USER","ADMIN", "ROOT"})
+	@Transactional(NOT_SUPPORTED)
+	public Response listar(@PathParam("id") Long entidadeId) {
+		List<Encaminhador> lista = service.findAll(entidadeId);
+		return Response.status(OK).entity(lista).build();
+	}
+
+	@GET
 	@Path("/{id}")
 	@RolesAllowed({"USER","ADMIN", "ROOT"})
+	@Transactional(NOT_SUPPORTED)
 	public Response getById(@PathParam("id") Long id) {
         try {
             return service.find(id)
@@ -50,25 +61,18 @@ public class EncaminhadoresController {
         }
 	}
 
-    @GET
-    @Path("/por_encaminhador/{id}")
-	@RolesAllowed({"USER","ADMIN", "ROOT"})
-	public Response listar(@PathParam("id") Long entidadeId) {
-		List<Encaminhador> lista = service.findAll(entidadeId);
-		return Response.status(OK).entity(lista).build();
-	}
-
 	@POST
 	@RolesAllowed({"USER","ADMIN", "ROOT"})
-	public Response gravar(@RequestBody Encaminhador model) {
-		ItaValidator<Encaminhador> v = new ItaValidator<Encaminhador>(model).validate(validator);
-		if (!v.hasErrors() ) {
+	@Transactional(REQUIRED)
+	public Response gravar(@RequestBody EncaminhadorDTO model) {
+		ItaValidator<EncaminhadorDTO> v = new ItaValidator<EncaminhadorDTO>(model).validate(validator);
+		if (v.hasErrors() ) {
 			return Response.status(BAD_REQUEST).entity(v.getErrors()).build();
 		}
 		try {
 			Encaminhador saved = null;
 			saved = service.create(model);
-		    return Response.status(OK).entity(saved).build();
+			return Response.status(OK).entity(saved).build();
 		} catch (Exception e) {
 			return Response.status(INTERNAL_SERVER_ERROR).entity(new ResponseReturn(e.getMessage())).build();
 		}
@@ -77,6 +81,7 @@ public class EncaminhadoresController {
 	@DELETE
     @Path("/{id}")
 	@RolesAllowed({"USER","ADMIN", "ROOT"})
+	@Transactional(REQUIRED)
 	public Response excluir(@PathParam("id") Long id) {
 		try {
 			if (!service.remove(id)){
@@ -91,6 +96,7 @@ public class EncaminhadoresController {
 	@GET
 	@Path("/lista/{id}")
 	@RolesAllowed({"USER","ADMIN", "ROOT"})
+	@Transactional(NOT_SUPPORTED)
 	public Response getListaEncaminhadores(@PathParam("id") Long entidadeId) {
 		List<SelectValueVO> lista = service.listSelect(entidadeId);
 		return Response.status(OK).entity(lista).build();

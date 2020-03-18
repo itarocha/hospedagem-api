@@ -16,8 +16,8 @@ public class EncaminhadorDTO implements Serializable {
 	private Long id;
 	
 	@NotNull(message="Entidade é obrigatória")
-	private EntidadeDTO entidade;
-	
+	private Long entidadeId;
+
 	@NotNull(message="Nome é obrigatório")
 	@Size(min = 2, max = 64, message="Nome deve ter entre 2 a 64 caracteres")
 	private String nome;
@@ -49,12 +49,12 @@ public class EncaminhadorDTO implements Serializable {
 		this.id = id;
 	}
 
-	public EntidadeDTO getEntidade() {
-		return entidade;
+	public Long getEntidadeId() {
+		return entidadeId;
 	}
 
-	public void setEntidade(EntidadeDTO entidade) {
-		this.entidade = entidade;
+	public void setEntidadeId(Long entidadeId) {
+		this.entidadeId = entidadeId;
 	}
 
 	public String getNome() {

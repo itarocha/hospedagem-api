@@ -1,6 +1,7 @@
 package br.com.itarocha.hospedagem.repository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.FlushModeType;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.lang.reflect.ParameterizedType;
@@ -45,26 +46,59 @@ public abstract class AbstractRepository<Entity extends IEntity, PK extends Numb
                 }).orElse(false);
     }
 
-    public Optional<Entity> findById(PK id){
+    public Optional<Entity> findById(PK id) {
+        return findById(id, new String[0]);
+    }
+
+    public Optional<Entity> findById(PK id, String[] fetchList){
+        /*
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Entity> cq = cb.createQuery(entityClass);
+        Root<Entity> root = cq.from(entityClass);
+
+        for (String attributName : fetchList) {
+            root.fetch(attributName, JoinType.LEFT);
+        }
+
+        cq.where(cb.equal(root.get("id"), id));
+        TypedQuery<Entity> q = em.createQuery(cq);
+
+        Entity retorno = q.getSingleResult();
+        return Optional.of(retorno);
+        */
+
         Entity e = em.find(entityClass, id);
         return Optional.ofNullable(e);
     }
 
     public List<Entity> getAll(){
+        return getAll(null,new String[0]);
+        /*
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Entity> q = cb.createQuery(entityClass);
         Root<Entity> c = q.from(entityClass);
         q.select(c);
         return em.createQuery(q).getResultList();
+         */
     }
 
-    public List<Entity> getAll(String orderField){
+    public List<Entity> getAll(String orderField, String[] fetchList){
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Entity> root = cb.createQuery(entityClass);
-        Root<Entity> c = root.from(entityClass);
-        root.select(c);
-        root.orderBy(cb.asc(c.get(orderField)));
-        return em.createQuery(root).getResultList();
+        CriteriaQuery<Entity> cq = cb.createQuery(entityClass);
+        Root<Entity> c = cq.from(entityClass);
+        for(String attributName: fetchList) {
+            c.fetch(attributName, JoinType.LEFT);
+        }
+        cq.select(c);
+        if (orderField != null){
+            cq.orderBy(cb.asc(c.get(orderField)));
+        }
+        return em.createQuery(cq).getResultList();
+    }
+
+
+    public List<Entity> getAll(String orderField){
+        return getAll(orderField, new String[0]);
     }
 
     public List<Entity> findByFieldNameAndValue(String campo, String valor, String orderBy){

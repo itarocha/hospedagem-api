@@ -12,17 +12,17 @@ import java.util.List;
 @ApplicationScoped
 public class EncaminhadorRepository extends AbstractRepository<Encaminhador, Long> {
 
-    @Inject
-    EntityManager em;
+    @Inject EntityManager em;
 
     public EncaminhadorRepository(EntityManager em) {
         super(em);
     }
 
     public List<Encaminhador> findAll(Long entidadeId) {
-        return em.createQuery("SELECT model FROM Encaminhador model WHERE model.entidade.id = :entidadeId ORDER BY model.nome", Encaminhador.class)
+        List<Encaminhador> retorno = em.createQuery("SELECT model FROM Encaminhador model INNER JOIN FETCH model.entidade etd WHERE etd.id = :entidadeId ORDER BY model.nome", Encaminhador.class)
                 .setParameter("entidadeId", entidadeId)
                 .getResultList();
+        return retorno;
     }
 
     public List<SelectValueVO> listSelect(Long entidadeId) {

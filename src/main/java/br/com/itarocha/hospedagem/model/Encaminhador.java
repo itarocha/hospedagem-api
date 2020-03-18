@@ -26,7 +26,6 @@ import br.com.itarocha.hospedagem.model.audit.UserDateAudit;
 
 @Entity
 @Table(name="encaminhador")
-//@JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "entidade"})
 public class Encaminhador extends UserDateAudit implements Serializable, IEntity {
 	
 	private static final long serialVersionUID = 4127725617611839075L;
@@ -38,7 +37,7 @@ public class Encaminhador extends UserDateAudit implements Serializable, IEntity
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="entidade_id")
 	@NotNull(message="Entidade é obrigatória")
-	@JsonbTransient
+	//@JsonbTransient
 	private Entidade entidade;
 	
 	@NotNull(message="Nome é obrigatório")

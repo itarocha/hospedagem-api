@@ -3,16 +3,8 @@ package br.com.itarocha.hospedagem.model;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.persistence.Basic;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.json.bind.annotation.JsonbTransient;
+import javax.persistence.*;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
@@ -39,7 +31,8 @@ public class Entidade  extends UserDateAudit implements Serializable, IEntity {
 	private String cnpj;
 	
 	@Valid
-	@ManyToOne()
+	//@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@ManyToOne
 	@NotNull(message="Endereço é obrigatório")
 	private Endereco endereco;
 	
@@ -54,10 +47,11 @@ public class Entidade  extends UserDateAudit implements Serializable, IEntity {
 	private String email;
 	
 	@Lob 
-	@Basic(fetch=FetchType.LAZY)
+	@Basic(fetch=FetchType.EAGER) // Era lazy
 	private String observacoes;
 
 	@OneToMany(mappedBy = "entidade",fetch=FetchType.LAZY)
+	@JsonbTransient
 	private List<Encaminhador> encaminhadores;
 	
 	public Entidade(){
